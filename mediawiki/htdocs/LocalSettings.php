@@ -50,8 +50,12 @@ $wgEmailAuthentication = false;
 
 ## Database settings
 $wgDBtype           = "mysql";
-# $wgDBserver         = "35.192.216.216:3306";
-$wgDBserver         = "localhost:/cloudsql/xqemu-154113:us-central1:xboxdevwiki-db2";
+if (getenv("K_SERVICE") == "xboxdevwiki") {
+    // $wgDBserver         = "35.192.216.216:3306"; # live
+    $wgDBserver         = "localhost:/cloudsql/xqemu-154113:us-central1:xboxdevwiki-db2"; # live
+} else {
+    $wgDBserver         = "34.70.222.160:3306"; # test
+}
 $wgDBname           = "bitnami_mediawiki";
 $wgDBuser           = "bn_mediawiki";
 $wgDBpassword       = getenv("WG_DB_PASSWORD");
@@ -78,9 +82,9 @@ $wgMemCachedServers = array();
 ## To enable image uploads, make sure the 'images' directory
 ## is writable, then set this to true:
 // $wgEnableUploads  = true;
-$wgEnableUploads = false;
+$wgEnableUploads = true;
 
-$wgUploadPath="https://storage.googleapis.com/xboxdevwiki-images";
+// $wgUploadPath="https://storage.googleapis.com/xboxdevwiki-images";
 
 // $wgUseImageMagick = true;
 // $wgImageMagickConvertCommand = "/opt/bitnami/common/bin/convert";
@@ -162,6 +166,22 @@ $wgGroupPermissions['*']['edit'] = false;
 # $wgGroupPermissions['*']['createaccount'] = false;
 
 wfLoadExtension( 'Nuke' );
+
+
+# Upload to Google Cloud Storage
+wfLoadExtension( 'AWS' );
+$wgFileBackends['s3']['endpoint'] = 'https://storage.googleapis.com';
+$wgAWSRegion = 'us-east-1'; # fake
+$wgAWSCredentials = [
+    'key' => getenv('GCS_ACCESS_KEY'),
+    'secret' => getenv('GCS_SECRET_KEY'),
+    'token' => false
+];
+// $wgAWSBucketName = "xboxdevwiki-images-tst";
+$wgAWSBucketName = "xboxdevwiki-images";
+$wgAWSBucketDomain = '$1.storage.googleapis.com';
+$wgAWSRepoHashLevels = '2'; # Default 0
+$wgAWSRepoDeletedHashLevels = '3'; # Default 0
 
 
 // $wgShowSQLErrors = 1;
