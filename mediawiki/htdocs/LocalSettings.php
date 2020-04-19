@@ -51,10 +51,10 @@ $wgEmailAuthentication = false;
 ## Database settings
 $wgDBtype           = "mysql";
 if (getenv("K_SERVICE") == "xboxdevwiki") {
-    // $wgDBserver         = "35.192.216.216:3306"; # live
     $wgDBserver         = "localhost:/cloudsql/xqemu-154113:us-central1:xboxdevwiki-db2"; # live
 } else {
-    $wgDBserver         = "34.70.222.160:3306"; # test
+    $wgDBserver         = "35.192.216.216:3306"; # live
+    // $wgDBserver         = "34.70.222.160:3306"; # test
 }
 $wgDBname           = "bitnami_mediawiki";
 $wgDBuser           = "bn_mediawiki";
@@ -86,7 +86,7 @@ $wgEnableUploads = true;
 
 // $wgUploadPath="https://storage.googleapis.com/xboxdevwiki-images";
 
-// $wgUseImageMagick = true;
+$wgUseImageMagick = true;
 // $wgImageMagickConvertCommand = "/opt/bitnami/common/bin/convert";
 
 # Path to jpegtran utility
@@ -156,12 +156,14 @@ $wgArticlePath = "/$1";
 $wgUsePathInfo = true;
 #$wgPhpCli = "/opt/bitnami/php/bin/php";
 
+# simple captcha
 wfLoadExtensions( array( 'ConfirmEdit', 'ConfirmEdit/QuestyCaptcha' ) );
 $wgCaptchaClass = 'QuestyCaptcha';
 $wgCaptchaQuestions = array(
   'ask on freenode/#xqemu for the password' => 'dono',
 );
 
+# require account to edit
 $wgGroupPermissions['*']['edit'] = false;
 # $wgGroupPermissions['*']['createaccount'] = false;
 
@@ -183,6 +185,11 @@ $wgAWSBucketDomain = '$1.storage.googleapis.com';
 $wgAWSRepoHashLevels = '2'; # Default 0
 $wgAWSRepoDeletedHashLevels = '3'; # Default 0
 
+wfLoadExtension( 'Cite' );
+
+wfLoadExtension( 'ImageMap' );
+
+wfLoadExtension( 'SyntaxHighlight_GeSHi' );
 
 // $wgShowSQLErrors = 1;
 // $wgShowExceptionDetails = true;

@@ -1,5 +1,7 @@
 FROM php:5.6-apache-jessie
 
+RUN apt update && apt install -y imagemagick
+
 RUN docker-php-ext-install mysqli
 
 RUN mv /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/
