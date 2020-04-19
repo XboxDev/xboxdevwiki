@@ -1,6 +1,6 @@
 FROM php:5.6-apache-jessie
 
-RUN apt update && apt install -y imagemagick
+RUN apt update && apt install -y python imagemagick
 
 RUN docker-php-ext-install mysqli
 
