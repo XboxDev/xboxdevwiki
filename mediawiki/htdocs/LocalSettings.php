@@ -160,7 +160,7 @@ $wgUsePathInfo = true;
 wfLoadExtensions( array( 'ConfirmEdit', 'ConfirmEdit/QuestyCaptcha' ) );
 $wgCaptchaClass = 'QuestyCaptcha';
 $wgCaptchaQuestions = array(
-  'ask on freenode/#xqemu for the password' => 'dono',
+  'ask on libera.chat/#xqemu or the XboxDev discord for the password' => 'dono',
 );
 
 # require account to edit
