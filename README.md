@@ -22,7 +22,7 @@ extra-trusted-public-keys = filc.cachix.org-1:8rA7kXyu1HaJuMTsAKfA9fU/+r8YtLv5Ki
 docker run --rm -p 8080:8080 \
   -e WG_DB_SERVER=host:3306 -e WG_DB_PASSWORD=... -e WG_SECRET_KEY=... \
   -e GCS_ACCESS_KEY=... -e GCS_SECRET_KEY=... \
-  gcr.io/xqemu-154113/xboxdevwiki:$(nix-instantiate --eval --raw -A image.imageTag)
+  us-central1-docker.pkg.dev/xqemu-154113/xboxdevwiki/xboxdevwiki:$(nix-instantiate --eval --raw -A image.imageTag)
 ```
 
 Without `WG_DB_SERVER` it connects to the live database.
@@ -30,8 +30,9 @@ Without `WG_DB_SERVER` it connects to the live database.
 ## Secrets
 
 `nix/secrets.nix` holds them encrypted with Cloud KMS. The container decrypts
-them when it starts, so the Cloud Run service account needs
-`roles/cloudkms.cryptoKeyDecrypter` on the `xboxdevwiki-secrets` key.
+them when it starts, as the `xboxdevwiki` service account, which has
+`roles/cloudkms.cryptoKeyDecrypter` on the `xboxdevwiki-secrets` key and
+`roles/cloudsql.client`, and nothing else.
 
 ## Notes
 

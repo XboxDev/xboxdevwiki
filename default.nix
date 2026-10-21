@@ -13,7 +13,7 @@ rec {
 
   image = import ./nix/image.nix {
     inherit pkgs runtime;
-    name = "gcr.io/${project}/xboxdevwiki";
+    name = "us-central1-docker.pkg.dev/${project}/xboxdevwiki/xboxdevwiki";
   };
 
   deploy = import ./nix/deploy.nix { inherit pkgs image project; };

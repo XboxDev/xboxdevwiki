@@ -36,13 +36,19 @@ pkgs.writeShellApplication {
     # built with Fil-C crash at startup. Four PHP workers under load use a bit
     # over 500 MiB, and compile all of MediaWiki when an instance starts. With
     # only four, requests beyond a few should go to another instance.
+    #
+    # Its own service account, which can reach the database and decrypt the
+    # secrets and nothing else: anything in the container can get its token.
+    # Ingress is not set here, so a deploy leaves it as it is.
     gcloud run deploy ${service} \
       --project ${project} \
       --region ${region} \
       --image ${ref} \
+      --service-account ${service}@${project}.iam.gserviceaccount.com \
       --set-cloudsql-instances ${project}:${region}:xboxdevwiki-db2 \
-      --max-instances 10 \
-      --concurrency 8 \
+      --max-instances 60 \
+      --concurrency 7 \
+      --timeout 900 \
       --memory 1Gi \
       --execution-environment gen2 \
       --cpu-boost \
