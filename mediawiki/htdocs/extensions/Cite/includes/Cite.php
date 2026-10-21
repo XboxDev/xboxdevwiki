@@ -1141,7 +1141,7 @@ class Cite {
 	 *
 	 * @return bool
 	 */
-	public function checkRefsNoReferences( $afterParse, &$parser, &$text ) {
+	public function checkRefsNoReferences( $afterParse, $parser, &$text ) {
 		if ( is_null( $parser->extCite ) ) {
 			return true;
 		}
