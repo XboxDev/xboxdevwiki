@@ -887,12 +887,11 @@ class MediaWiki {
 			__METHOD__
 		);
 
+		// Important: this must be the last deferred update added (T100085, T154425)
+		DeferredUpdates::addCallableUpdate( [ JobQueueGroup::class, 'pushLazyJobs' ] );
+
 		// Do any deferred jobs
 		DeferredUpdates::doUpdates( 'enqueue' );
-		DeferredUpdates::setImmediateMode( true );
-
-		// Make sure any lazy jobs are pushed
-		JobQueueGroup::pushLazyJobs();
 
 		// Now that everything specific to this request is done,
 		// try to occasionally run jobs (if enabled) from the queues

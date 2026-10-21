@@ -732,7 +732,7 @@ __INDEXATTR__;
 		list( $startOpts, $useIndex, $tailOpts, $ignoreIndex ) =
 			$this->makeSelectOptions( $selectOptions );
 		if ( is_array( $srcTable ) ) {
-			$srcTable = implode( ',', array_map( [ &$this, 'tableName' ], $srcTable ) );
+			$srcTable = implode( ',', array_map( [ $this, 'tableName' ], $srcTable ) );
 		} else {
 			$srcTable = $this->tableName( $srcTable );
 		}
@@ -1106,6 +1106,7 @@ __INDEXATTR__;
 		if ( $schema === false ) {
 			$schema = $this->getCoreSchema();
 		}
+		$table = $this->realTableName( $table, 'raw' );
 		$etable = $this->addQuotes( $table );
 		$eschema = $this->addQuotes( $schema );
 		$sql = "SELECT 1 FROM pg_catalog.pg_class c, pg_catalog.pg_namespace n "
@@ -1329,7 +1330,7 @@ SQL;
 
 		if ( isset( $options['FOR UPDATE'] ) ) {
 			$postLimitTail .= ' FOR UPDATE OF ' .
-				implode( ', ', array_map( [ &$this, 'tableName' ], $options['FOR UPDATE'] ) );
+				implode( ', ', array_map( [ $this, 'tableName' ], $options['FOR UPDATE'] ) );
 		} elseif ( isset( $noKeyOptions['FOR UPDATE'] ) ) {
 			$postLimitTail .= ' FOR UPDATE';
 		}

@@ -121,7 +121,7 @@ class ApiLogin extends ApiBase {
 				$session = $status->getValue();
 				$authRes = 'Success';
 				$loginType = 'BotPassword';
-			} elseif ( !$botLoginData[2] ) {
+			} elseif ( !$botLoginData[2] || $status->hasMessage( 'login-throttled' ) ) {
 				$authRes = 'Failed';
 				$message = $status->getMessage();
 				LoggerFactory::getInstance( 'authentication' )->info(
@@ -256,6 +256,7 @@ class ApiLogin extends ApiBase {
 			'token' => [
 				ApiBase::PARAM_TYPE => 'string',
 				ApiBase::PARAM_REQUIRED => false, // for BC
+				ApiBase::PARAM_SENSITIVE => true,
 				ApiBase::PARAM_HELP_MSG => [ 'api-help-param-token', 'login' ],
 			],
 		];
