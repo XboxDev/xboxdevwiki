@@ -50,7 +50,9 @@ $wgEmailAuthentication = false;
 
 ## Database settings
 $wgDBtype           = "mysql";
-if (getenv("K_SERVICE") == "xboxdevwiki") {
+if (getenv("WG_DB_SERVER")) {
+    $wgDBserver         = getenv("WG_DB_SERVER"); # local testing
+} else if (getenv("K_SERVICE") == "xboxdevwiki") {
     $wgDBserver         = "localhost:/cloudsql/xqemu-154113:us-central1:xboxdevwiki-db2"; # live
 } else {
     $wgDBserver         = "35.192.216.216:3306"; # live
@@ -87,7 +89,7 @@ $wgEnableUploads = true;
 // $wgUploadPath="https://storage.googleapis.com/xboxdevwiki-images";
 
 $wgUseImageMagick = true;
-// $wgImageMagickConvertCommand = "/opt/bitnami/common/bin/convert";
+$wgImageMagickConvertCommand = "/usr/bin/magick"; # ImageMagick 7's name for convert
 
 # Path to jpegtran utility
 // $wgJpegTran = '/opt/bitnami/common/bin/';
@@ -101,7 +103,11 @@ $wgUseInstantCommons  = false;
 ## If you use ImageMagick (or any other shell command) on a
 ## Linux server, this will need to be set to the name of an
 ## available UTF-8 locale
-$wgShellLocale = "en_US.utf8";
+$wgShellLocale = "C.UTF-8";
+
+## The limit is applied with `ulimit -v`. Programs built with Fil-C reserve far
+## more address space than they use and die at startup under any such limit.
+$wgMaxShellMemory = 0;
 
 ## If you want to use image uploads under safe mode,
 ## create the directories images/archive, images/thumb and
@@ -163,6 +169,13 @@ $wgCaptchaQuestions = array(
   'ask on libera.chat/#xqemu or the XboxDev discord for the password' => 'dono',
 );
 
+# Run queued jobs at the end of the page view that finds them. The default is to
+# have another request do it: POST to Special:RunJobs, which answers 202, flushes
+# and sets to work. But php-cgi sends nothing when only headers are flushed, so
+# the answer came when the job was done. Past 2 s the page view gave up waiting
+# and ran the job as well.
+$wgRunJobsAsync = false;
+
 # require account to edit
 $wgGroupPermissions['*']['edit'] = false;
 # $wgGroupPermissions['*']['createaccount'] = false;
@@ -190,6 +203,8 @@ wfLoadExtension( 'Cite' );
 wfLoadExtension( 'ImageMap' );
 
 wfLoadExtension( 'SyntaxHighlight_GeSHi' );
+# The bundled pygmentize (Pygments 2.1) does not run on current Python 3.
+$wgPygmentizePath = "/bin/pygmentize";
 
 // $wgShowSQLErrors = 1;
 // $wgShowExceptionDetails = true;
