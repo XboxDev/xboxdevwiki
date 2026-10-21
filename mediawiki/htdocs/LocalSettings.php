@@ -75,6 +75,11 @@ $wgDBmysql5 = false;
 $wgMainCacheType    = CACHE_NONE;
 $wgMemCachedServers = array();
 
+# Each instance keeps its own localisation cache. Since 1.28.1 the default is a
+# database table. Instances would share it, and fail with duplicate rows when
+# several requests fill it at once, as they do after every deploy.
+$wgLocalisationCacheConf['storeDirectory'] = "/tmp";
+
 # Image Converter
 // $wgSVGConverter = 'ImageMagick';
 
@@ -168,13 +173,6 @@ $wgCaptchaClass = 'QuestyCaptcha';
 $wgCaptchaQuestions = array(
   'ask on libera.chat/#xqemu or the XboxDev discord for the password' => 'dono',
 );
-
-# Run queued jobs at the end of the page view that finds them. The default is to
-# have another request do it: POST to Special:RunJobs, which answers 202, flushes
-# and sets to work. But php-cgi sends nothing when only headers are flushed, so
-# the answer came when the job was done. Past 2 s the page view gave up waiting
-# and ran the job as well.
-$wgRunJobsAsync = false;
 
 # require account to edit
 $wgGroupPermissions['*']['edit'] = false;
