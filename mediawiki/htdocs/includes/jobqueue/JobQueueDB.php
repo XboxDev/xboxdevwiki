@@ -264,6 +264,13 @@ class JobQueueDB extends JobQueue {
 	protected function doPop() {
 		$dbw = $this->getMasterDB();
 		try {
+			// Clearing DBO_TRX does not end a transaction that is already open, such as
+			// the one doIsEmpty() starts. In its REPEATABLE-READ snapshot, a job that
+			// another runner has since claimed looks unclaimed forever, while the UPDATE
+			// that would claim it matches nothing, so claimRandom() never returns.
+			if ( !$dbw->writesOrCallbacksPending() && !$dbw->explicitTrxActive() ) {
+				$dbw->flushSnapshot( __METHOD__ );
+			}
 			$autoTrx = $dbw->getFlag( DBO_TRX ); // get current setting
 			$dbw->clearFlag( DBO_TRX ); // make each query its own transaction
 			$scopedReset = new ScopedCallback( function () use ( $dbw, $autoTrx ) {
