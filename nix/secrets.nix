@@ -1,5 +1,5 @@
 # The environment variables LocalSettings.php reads, encrypted with Cloud KMS.
-# nix/entrypoint.php decrypts them when an instance starts. To add or change one:
+# nix/entrypoint.sh decrypts them when an instance starts. To add or change one:
 #
 #   printf %s "$value" | gcloud kms encrypt --project xqemu-154113 \
 #     --location global --keyring xboxdevwiki-keyring --key xboxdevwiki-secrets \

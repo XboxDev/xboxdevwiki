@@ -52,18 +52,18 @@ works on Google Cloud (see [Secrets](#secrets)).
 | `nix/runtime.nix` | The programs in the image, and `php.ini` |
 | `nix/lighttpd.nix` | Web server configuration |
 | `nix/image.nix`, `nix/rootfs.py` | Assembles the image and checks that it is all Fil-C |
-| `nix/entrypoint.php`, `nix/secrets.nix` | Decrypts the secrets when an instance starts |
+| `nix/entrypoint.sh`, `nix/secrets.nix` | Decrypts the secrets when an instance starts |
 | `nix/deploy.nix` | `deploy` |
 | `mediawiki/htdocs` | MediaWiki 1.28.0 with its extensions and `LocalSettings.php` |
 
 ## What is in the image
 
-`entrypoint.php` decrypts the secrets and then becomes lighttpd, the only
+`entrypoint.sh` decrypts the secrets and then becomes lighttpd, the only
 long-running command. It serves static files and keeps a pool of `php-cgi`
 workers. MediaWiki shells out to ImageMagick (thumbnails),
 Pygments on Python 3 (`<syntaxhighlight>`), `diff3` (edit conflicts) and `file`
-(upload MIME types), by way of bash and coreutils. It runs as `nobody`, and
-nothing but `/tmp` is writable.
+(upload MIME types), by way of bash and coreutils. `curl` and `jq` are there for
+`entrypoint.sh`. It runs as `nobody`, and nothing but `/tmp` is writable.
 
 Queued jobs (link updates after an edit, mostly) run at the end of whichever
 page view finds them, so that visitor waits for one. MediaWiki's way of handing
@@ -152,13 +152,14 @@ nothing else, whatever a file is called, has no delegates, and gives up beyond
 
 `LocalSettings.php` reads four environment variables. Their values are in
 `nix/secrets.nix`, encrypted with Cloud KMS, and that is all the image has.
-When an instance starts, `nix/entrypoint.php` gets a token for the service's
+When an instance starts, `nix/entrypoint.sh` gets a token for the service's
 own service account from the metadata server, has Cloud KMS decrypt them, and
 passes them to lighttpd in its environment. The plaintext is never in the
 image, the Nix store, the service's configuration or on the deployer's machine.
 
-Passing errors are retried. If it still fails the container exits, saying why.
-For a new revision that means Cloud Run keeps serving the previous one.
+If any of that fails the container exits with curl's or jq's complaint, rather
+than start without a secret. For a new revision that means Cloud Run keeps
+serving the previous one.
 
 The service account needs permission to decrypt. Once:
 

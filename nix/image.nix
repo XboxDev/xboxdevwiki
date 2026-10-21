@@ -17,28 +17,33 @@ let
     documentRoot = mediawiki;
   };
 
-  # /bin, for LocalSettings.php, wfShellExec() and anyone who execs into the
-  # container. /usr/bin is the same directory.
+  # /bin, for entrypoint.sh, LocalSettings.php, wfShellExec() and anyone who
+  # execs into the container. /usr/bin is the same directory.
   bin = pkgs.buildEnv {
     name = "bin";
     paths = with runtime; [
       bash
       coreutils
+      curl
       diffutils
       file
       imagemagick
+      jq
       php
       pygmentize
     ];
     pathsToLink = [ "/bin" ];
   };
 
-  secrets = pkgs.writeText "secrets.json" (builtins.toJSON (import ./secrets.nix));
+  secrets = pkgs.writeText "secrets.json" (
+    builtins.toJSON { inherit (import ./secrets.nix) key ciphertexts; }
+  );
 
   command = [
-    "${runtime.php}/bin/php"
-    "${./entrypoint.php}"
+    "${runtime.bash}/bin/bash"
+    "${./entrypoint.sh}"
     "${secrets}"
+    runtime.caBundle
     "${runtime.lighttpd}/bin/lighttpd"
     "-D"
     "-f"
@@ -61,10 +66,13 @@ let
         "phpdbg"
       ];
 
-  # What MediaWiki runs by name: see LocalSettings.php, wfShellExec() and
-  # includes/limit.sh.
+  # What is run by name: see entrypoint.sh, LocalSettings.php, wfShellExec()
+  # and includes/limit.sh.
   required = lib.filter (lib.hasPrefix "/") command ++ [
+    "/bin/base64"
     "/bin/bash"
+    "/bin/curl"
+    "/bin/jq"
     "/bin/sh"
     "/bin/pygmentize"
     "/usr/bin/diff3"
@@ -93,7 +101,7 @@ let
           --unwanted ${toString unwanted} \
           --required ${toString required} \
           | tee rootfs.log
-        echo 'nobody:x:65534:65534:nobody:/tmp:/bin/false' > $out/etc/passwd
+        echo 'nobody:x:65534:65534:nobody:/nonexistent:/bin/false' > $out/etc/passwd
         echo 'nobody:x:65534:' > $out/etc/group
         echo 'hosts: files dns' > $out/etc/nsswitch.conf
         mkdir -p $out/nix-support

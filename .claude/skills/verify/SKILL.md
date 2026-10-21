@@ -48,7 +48,7 @@ To change settings for a test, bind-mount an edited `LocalSettings.php` over
   `/extensions/Nuke/Nuke.php/x.css`.
 - Start with none of the four secrets set, `--add-host` `metadata.google.internal`
   and `cloudkms.googleapis.com` to mock servers, and a test CA mounted over the
-  `curl.cainfo` path. Try 403, 503 and an untrusted certificate too.
+  CA bundle (`runtime.caBundle`). Try 403, 503 and an untrusted certificate too.
 - Cold start under load: queue jobs with API edits, `docker restart`, then a few
   hundred mixed requests at concurrency 8. Anything but HTTP 200 is a finding.
 

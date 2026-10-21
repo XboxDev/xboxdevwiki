@@ -4,36 +4,37 @@ let
   inherit (pkgsFilc) lib;
 in
 rec {
+  caBundle = "${pkgsFilc.cacert}/etc/ssl/certs/ca-bundle.crt";
+
   # MediaWiki 1.28 predates PHP 8 (it needs each(), create_function(), ...), so
   # this is the last release of the newest PHP line it runs on. 7.4 has been
   # out of support since 2022; Fil-C is what stands between its unfixed memory
   # bugs and an exploit.
   php = pkgsFilc.php74.buildEnv {
     extensions =
+      # By name: in this `rec`, a bare `curl` would be the program below.
       { all, ... }:
-      with all;
-      [
-        ctype
-        curl # AWS SDK
-        dom
-        fileinfo
-        filter
-        iconv
-        intl
-        json
-        mbstring
-        mysqli
-        mysqlnd
-        opcache
-        openssl
-        pcntl # entrypoint.php
-        posix
-        session
-        simplexml # AWS SDK
-        tokenizer
-        xmlreader
-        xmlwriter # AWS SDK
-        zlib
+      map (name: all.${name}) [
+        "ctype"
+        "curl" # AWS SDK
+        "dom"
+        "fileinfo"
+        "filter"
+        "iconv"
+        "intl"
+        "json"
+        "mbstring"
+        "mysqli"
+        "mysqlnd"
+        "opcache"
+        "openssl"
+        "posix"
+        "session"
+        "simplexml" # AWS SDK
+        "tokenizer"
+        "xmlreader"
+        "xmlwriter" # AWS SDK
+        "zlib"
       ];
     extraConfig = ''
       ; MediaWiki 1.28 is full of constructs 7.x deprecates.
@@ -42,8 +43,8 @@ rec {
       log_errors = On
       expose_php = Off
 
-      curl.cainfo = ${pkgsFilc.cacert}/etc/ssl/certs/ca-bundle.crt
-      openssl.cafile = ${pkgsFilc.cacert}/etc/ssl/certs/ca-bundle.crt
+      curl.cainfo = ${caBundle}
+      openssl.cafile = ${caBundle}
 
       ; The code lives in the read-only Nix store and never changes.
       opcache.enable = 1
@@ -146,7 +147,9 @@ rec {
   inherit (pkgsFilc)
     bash # wfShellExec(): /bin/sh -c, and /bin/bash includes/limit.sh
     coreutils # limit.sh: timeout
+    curl # entrypoint.sh
     diffutils # $wgDiff3
     file # $wgMimeDetectorCommand
+    jq # entrypoint.sh
     ;
 }
