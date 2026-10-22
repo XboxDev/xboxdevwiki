@@ -25,7 +25,8 @@ docker run --rm -p 8080:8080 \
   us-central1-docker.pkg.dev/xqemu-154113/xboxdevwiki/xboxdevwiki:$(nix-instantiate --eval --raw -A image.imageTag)
 ```
 
-Without `WG_DB_SERVER` it connects to the live database.
+`WG_DB_SERVER` is needed: the live database takes no connections from outside
+Cloud Run.
 
 ## Secrets
 

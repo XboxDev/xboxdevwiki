@@ -7,7 +7,7 @@ description: Build the xboxdevwiki image and drive the running container (wiki f
 
 The surface is the container's HTTP port. Build the image, run it against a
 scratch database, and drive it with curl or a browser. Never point a test at the
-live database (the default when `WG_DB_SERVER` is unset) or run `deploy`.
+live database or run `deploy`.
 
 ## Build and run
 
